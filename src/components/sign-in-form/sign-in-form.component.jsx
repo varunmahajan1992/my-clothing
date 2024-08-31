@@ -1,14 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   createUserDocumentFromAuth,
   signInWithGooglePopup,
   signInUserWithEmailAndPassword,
-  auth,
 } from "../../utils/firebase/firebase.util";
 import FormInput from "../form-input/form-input.component";
 import "./sign-in-form.styles.scss";
 import Button from "../button/button.component";
-import { onAuthStateChanged } from "firebase/auth";
 
 const defaultFormFields = {
   email: "",
@@ -31,8 +29,7 @@ const SignInForm = () => {
     event.preventDefault();
 
     try {
-      const response = await signInUserWithEmailAndPassword(email, password);
-      console.log(response);
+      const { user } = await signInUserWithEmailAndPassword(email, password);
       resetFormFields();
     } catch (err) {
       if (err.code === "auth/invalid-credential") {
@@ -48,18 +45,8 @@ const SignInForm = () => {
   };
 
   const signInWithGoogle = async () => {
-    const { user } = await signInWithGooglePopup();
-    await createUserDocumentFromAuth(user);
+    await signInWithGooglePopup();
   };
-
-  useEffect(() => {
-    onAuthStateChanged(auth, async (user) => {
-      console.log(user);
-      if (user) {
-        await createUserDocumentFromAuth(user);
-      }
-    });
-  }, []);
 
   return (
     <div className="sign-in-container">
@@ -76,7 +63,7 @@ const SignInForm = () => {
         ></FormInput>
         <FormInput
           label="Password"
-          type="text"
+          type="password"
           required
           onChange={handleChange}
           name="password"
